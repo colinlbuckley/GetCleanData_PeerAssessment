@@ -36,8 +36,13 @@ names(merged_data)[1:3] <- c("subject", "activity", "V1")
 # Cleaning Data ----
 ## Clean names/labels ----
 # Removing punctuation with gsub() and regex
-feature_names_trimmed <- gsub("-|\\(|\\)", "", feature_names$V2) 
-feature_names_clean <- gsub(",", "_", feature_names_trimmed)
+feature_names_clean <- gsub("-|\\(|\\)", "", feature_names$V2) %>%
+    gsub(",", "_", .) %>%
+    gsub("^t", "time", .) %>%
+    gsub("^anglet", "angletime", .) %>%
+    gsub("^anglef", "anglefreq", .) %>%
+    gsub("^f", "freq", .)
+#feature_names_clean <- gsub(",", "_", feature_names_trimmed)
 rm(feature_names, feature_names_trimmed) # rm file vectors
 
 ## 4. Descriptive variable names ----
@@ -46,11 +51,16 @@ names(merged_data)[3:563] <- feature_names_clean
 ## 2. Extract only mean and std entries for each measurement ----
 # note regex phrasing to exclude instances of "meanFreq()"
 mean_std <- merged_data %>%
-  select(matches("subject|activity|mean$|mean[x-zX-Z]|std"))
+    select(matches("subject|activity|mean$|mean[x-zX-Z]|std"))
 
-# 3. Set clear/descriptive labels for activity factor ----
+## 3. Set clear/descriptive labels for activity factor ----
 mean_std$activity <- factor(mean_std$activity, 
                             levels = c(1:6),
                             labels = activity_names)
 
+mean_std %>%
+    group_by(activity, subject) %>%
+    summarize(across())
+# Preview Datasets ----
 glimpse(mean_std)
+#glimpse(mean_std)
